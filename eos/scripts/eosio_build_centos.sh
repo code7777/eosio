@@ -12,19 +12,49 @@ echo "Disk space available: ${DISK_AVAIL}G"
 
 echo ""
 
-if [[ "$(echo ${VERSION} | sed 's/ .*//g')" == 7 ]]; then
+#if [[ "$(echo ${VERSION} | sed 's/ .*//g')" == 7 ]]; then
 # Repo necessary for rh-python3, devtoolset-8 and llvm-toolset-7.0
-ensure-scl
+#ensure-scl
 # GCC8 for Centos / Needed for CMAKE install even if we're pinning
-ensure-devtoolset
+#ensure-devtoolset
 if [[ -d /opt/rh/devtoolset-8 ]]; then
 	echo "${COLOR_CYAN}[Enabling Centos devtoolset-8 (so we can use GCC 8)]${COLOR_NC}"
 	execute-always source /opt/rh/devtoolset-8/enable
 	echo " - ${COLOR_GREEN}Centos devtoolset-8 successfully enabled!${COLOR_NC}"
 fi
 
+# List of dependencies to be checked
+dependencies1=(
+    "autoconf"
+    "automake"
+    "libtool"
+    "doxygen"
+    "graphviz"
+    "bzip2-devel"
+    "gmp-devel"
+    "ocaml"
+    "python"
+    "python-devel"
+    "gettext-devel"
+    "libusbx-devel"
+    "libcurl-devel"
+    #"llvm-toolset-7.0-llvm-devel"
+    #"llvm-toolset-7.0-llvm-static"
+    #"epel-release"
+)
+
+# Loop through each dependency and check if it's installed
+for dep in "${dependencies1[@]}"; do
+    if ! rpm -q "$dep" > /dev/null; then
+        echo "$dep not found. Installing..."
+        sudo dnf install -y "$dep"
+    fi
+done
+
+# Print message indicating that all dependencies have been installed
+echo "All missing dependencies1 have been installed."
 # Ensure packages exist
-ensure-yum-packages "${REPO_ROOT}/scripts/eosio_build_centos7_deps"
+#ensure-yum-packages "${REPO_ROOT}/scripts/eosio_build_centos7_deps"
 export PYTHON3PATH="/opt/rh/rh-python36"
 if $DRYRUN || [ -d $PYTHON3PATH ]; then
 	echo "${COLOR_CYAN}[Enabling python36]${COLOR_NC}"
@@ -32,15 +62,14 @@ if $DRYRUN || [ -d $PYTHON3PATH ]; then
 	echo " ${COLOR_GREEN}- Python36 successfully enabled!${COLOR_NC}"
 	echo ""
 fi
-fi
+#fi
 
-if [[ "$(echo ${VERSION} | sed 's/ .*//g')" == 8 ]]; then
-        echo "Install Development Tools ..."
-        install-package https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-        group-install-package 'Development Tools'
-        install-package openssl-devel
-        install-package which
-	install-package git 
+
+
+      
+        #install-package https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    group-install-package 'Development Tools'
+        
 	install-package autoconf
 	install-package automake
 	install-package libtool
@@ -63,10 +92,9 @@ if [[ "$(echo ${VERSION} | sed 's/ .*//g')" == 8 ]]; then
 	install-package llvm-static
 	install-package procps-ng
 	install-package util-linux
-        install-package sudo
 	install-package libstdc++
         install-package dnf-plugins-core
-        sudo dnf config-manager --set-enabled PowerTools || sudo dnf config-manager --set-enabled powertools
+        #sudo dnf config-manager --set-enabled PowerTools || sudo dnf config-manager --set-enabled powertools
         install-package doxygen
         install-package ocaml
 	install-package ncurses-compat-libs
@@ -81,10 +109,11 @@ if [[ "$(echo ${VERSION} | sed 's/ .*//g')" == 8 ]]; then
         yarn install
         popd
 
+		#update permissions
         if [ ! -L "/usr/local/lib/libtinfo.so" ] ; then
-	    ln -s /usr/lib64/libtinfo.so.6 /usr/local/lib/libtinfo.so
+	    sudo ln -s /usr/lib64/libtinfo.so.6 /usr/local/lib/libtinfo.so
         fi
-fi
+#fi
 
 # Handle clang/compiler
 ensure-compiler
