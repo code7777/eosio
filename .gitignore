@@ -125,6 +125,8 @@ eos/libraries/wasm-jit/Source/Programs/wavm/
 eos/libraries/wasm-jit/Source/Programs/wavm/*
 eos/Makefile/
 eos/Makefile/*
+eos/node_modules/
+eos/node_modules/*
 eos/moc_*
 eos/programs/cleos/cleos/
 eos/programs/cleos/cleos/*
@@ -182,6 +184,7 @@ eos/witness_node_data_dir/*
 *.dot
 *.dylib
 
-
+yarn.lock
+logs.md
 
 
